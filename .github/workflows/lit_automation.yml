@@ -1,0 +1,28 @@
+name: Literature Automation
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # 3주마다 월요일 오전 9시
+  workflow_dispatch:       # 수동 실행도 가능
+
+jobs:
+  run-lit-automation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install anthropic feedparser pyzotero PyGithub
+
+      - name: Run automation
+
+env:
+  CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+  ZOTERO_API_KEY: ${{ secrets.ZOTERO_API_KEY }}
+  GITHUB_TOKEN:   ${{ secrets.GH_TOKEN }}
+        run: python lit_automation.py
