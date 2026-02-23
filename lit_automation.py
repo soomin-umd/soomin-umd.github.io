@@ -192,7 +192,7 @@ tags: [quant-methods, higher-ed, auto-summary]
         else:
             print(f"  ⚠️ GitHub error: {e}")
 
-def run_pipeline(days_back=21):
+def run_pipeline(days_back=60):
     print("🚀 Starting Literature Automation Pipeline")
     print(f"   Scanning last {days_back} days\n")
     papers = fetch_papers(days_back=days_back)
@@ -220,4 +220,5 @@ def run_pipeline(days_back=21):
     print(f"\n✅ Done! {len(papers)} papers processed.")
     print(f"   Blog: https://soomin-umd.github.io")
 
-run_pipeline(days_back=21)
+
+run_pipeline(days_back=60)
