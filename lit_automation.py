@@ -219,6 +219,65 @@ def run_pipeline(days_back=60):
         time.sleep(2)
     print(f"\n✅ Done! {len(papers)} papers processed.")
     print(f"   Blog: https://soomin-umd.github.io")
-
+def process_zotero_queue(days_back=21):
+    """Zotero에 최근 추가된 논문 중 키워드 매칭되면 블로그 포스팅"""
+    print("\n📚 Checking Zotero for new items...")
+    zot = zotero.Zotero(ZOTERO_USER_ID, 'user', ZOTERO_API_KEY)
+    
+    # 최근 추가된 아이템 가져오기
+    items = zot.items(sort='dateAdded', direction='desc', limit=50)
+    cutoff = datetime.datetime.now() - datetime.timedelta(days=days_back)
+    
+    processed = 0
+    for item in items:
+        data = item.get('data', {})
+        
+        # 최근 추가된 것만
+        date_added = data.get('dateAdded', '')
+        if date_added:
+            added_dt = datetime.datetime.strptime(date_added[:19], '%Y-%m-%dT%H:%M:%S')
+            if added_dt < cutoff:
+                continue
+        
+        # auto-imported 태그는 RSS에서 온 거니까 스킵 (중복 방지)
+        tags = [t['tag'] for t in data.get('tags', [])]
+        if 'auto-imported' in tags:
+            continue
+        
+        title    = data.get('title', '')
+        abstract = data.get('abstractNote', '')
+        link     = data.get('url', '')
+        journal  = data.get('publicationTitle', 'Unknown Journal')
+        date     = data.get('date', str(datetime.date.today()))[:10]
+        
+        ok, reason = passes_filter(title, abstract)
+        if not ok:
+            print(f"  ⏭️  SKIP ({reason}) | {title[:50]}...")
+            continue
+        
+        print(f"  ✅ MATCH | {reason} | {title[:60]}...")
+        
+        paper = {
+            'title': title, 'abstract': abstract,
+            'link': link, 'journal': journal, 'date': date,
+        }
+        
+        print("  🤖 Generating Claude summary...")
+        try:
+            summary = generate_summary(paper)
+        except Exception as e:
+            print(f"  ⚠️ Claude error: {e}")
+            continue
+        
+        try:
+            post_to_github(paper, summary)
+            processed += 1
+        except Exception as e:
+            print(f"  ⚠️ GitHub error: {e}")
+        
+        time.sleep(2)
+    
+    print(f"  ✅ Zotero queue: {processed} papers processed")
 
 run_pipeline(days_back=60)
+    process_zotero_queue(days_back=days_back)
