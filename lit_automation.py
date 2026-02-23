@@ -60,15 +60,14 @@ K12_KEYWORDS = [
 TITLE_KEYWORDS = [
     "financial aid", "tuition", "selectivity", "equity",
     "access", "enrollment", "college completion",
-    "first-generation", "first generation",        # 하이픈 없는 표기 추가
+    "first-generation", "first generation",
     "intergenerational", "mobility",
     "scholarship", "affordability", "student loan",
     "transfer", "retention", "attainment",
     "community college", "four-year", "postsecondary",
-    "lower-income", "low-income", "pell",           # 소득/Pell 관련 추가
+    "lower-income", "low-income", "pell",
     "underrepresented", "minority", "racial",
 ]
-
 
 def fetch_abstract_from_doi(doi: str) -> str:
     """DOI로 Crossref API에서 abstract 가져오기 (Zotero에 abstract 없을 때 fallback)"""
