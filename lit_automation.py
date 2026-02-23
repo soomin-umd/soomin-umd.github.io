@@ -19,8 +19,6 @@ RSS_FEEDS = {
         "https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=11162",
     "Journal of Higher Education":
         "https://www.tandfonline.com/feed/rss/uhej20",
-    "Education Finance and Policy":
-        "https://direct.mit.edu/rss/journals/edfp",
     "Educational Evaluation and Policy Analysis":
         "https://journals.sagepub.com/action/showFeed?jc=epaa&type=etoc&feed=rss",
     "Journal of Policy Analysis and Management":
