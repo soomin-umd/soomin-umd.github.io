@@ -15,9 +15,10 @@ GITHUB_TOKEN   = os.environ.get("GH_TOKEN")
 GITHUB_REPO    = "soomin-umd/soomin-umd.github.io"
 
 # ── RSS Feeds ────────────────────────────────────────────────────────────────
+# results=100 → Springer 기본 25개 한계 우회, 최근 100개까지 수집
 RSS_FEEDS = {
     "Research in Higher Education":
-        "https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=11162",
+        "https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=11162&results=100",
     "Journal of Higher Education":
         "https://www.tandfonline.com/feed/rss/uhej20",
     "Educational Evaluation and Policy Analysis":
@@ -36,12 +37,16 @@ QUANT_KEYWORDS = [
     "panel data", "fixed effects", "random effects",
     "synthetic control", "event study",
     "quasi-experimental", "natural experiment",
-    "causal inference", "causal identification", "causal effect",
+    "causal inference", "causal identification",
+    r"causal effect",        # "causal effects" 복수도 매칭
     "multilevel model", "hierarchical linear model", "ols regression",
+    "logistic regression", "logit model", "probit model",
     "interrupted time series", "its analysis", "segmented regression",
     "triple difference", "difference-in-difference-in-differences",
     "staggered adoption", "callaway", "sant'anna",
     "heterogeneous treatment",
+    "regression model", "multivariate regression",
+    "longitudinal", "cross-sectional analysis",
 ]
 
 K12_KEYWORDS = [
@@ -55,14 +60,37 @@ K12_KEYWORDS = [
 TITLE_KEYWORDS = [
     "financial aid", "tuition", "selectivity", "equity",
     "access", "enrollment", "college completion",
-    "first-generation", "intergenerational", "mobility",
+    "first-generation", "first generation",        # 하이픈 없는 표기 추가
+    "intergenerational", "mobility",
     "scholarship", "affordability", "student loan",
     "transfer", "retention", "attainment",
+    "community college", "four-year", "postsecondary",
+    "lower-income", "low-income", "pell",           # 소득/Pell 관련 추가
+    "underrepresented", "minority", "racial",
 ]
 
 
+def fetch_abstract_from_doi(doi: str) -> str:
+    """DOI로 Crossref API에서 abstract 가져오기 (Zotero에 abstract 없을 때 fallback)"""
+    if not doi:
+        return ''
+    try:
+        import urllib.request, json
+        url = f"https://api.crossref.org/works/{doi}"
+        req = urllib.request.Request(url, headers={'User-Agent': 'LitBot/1.0'})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read())
+            abstract = data.get('message', {}).get('abstract', '')
+            # <jats:p> 태그 제거
+            abstract = re.sub(r'<[^>]+>', '', abstract).strip()
+            return abstract
+    except Exception as e:
+        print(f"  ⚠️ Crossref fetch failed: {e}")
+        return ''
+
+
 # ── Filter ───────────────────────────────────────────────────────────────────
-def passes_filter(title: str, abstract: str) -> tuple[bool, str]:
+def passes_filter(title: str, abstract: str, debug: bool = False) -> tuple[bool, str]:
     text       = (title + " " + abstract).lower()
     title_text = title.lower()
 
@@ -80,6 +108,11 @@ def passes_filter(title: str, abstract: str) -> tuple[bool, str]:
     title_match = next(
         (kw for kw in TITLE_KEYWORDS if kw in title_text), None
     )
+
+    if debug:
+        print(f"    [DEBUG] quant_match={quant_match} | title_match={title_match}")
+        print(f"    [DEBUG] title='{title_text[:80]}'")
+        print(f"    [DEBUG] abstract_len={len(abstract)}")
 
     if not quant_match and not title_match:
         return False, "No quant/topic keyword"
@@ -256,10 +289,12 @@ def run_rss_pipeline(days_back: int = 22):
 
 
 # ── Pipeline 2: Zotero Queue (수동 추가분) ────────────────────────────────────
-def run_zotero_pipeline(days_back: int = 22):
+def run_zotero_pipeline(days_back: int = 22, debug: bool = False):
     print(f"\n{'='*60}")
     print("📚 [Pipeline 2] Zotero Queue Scan")
     print(f"   Checking items added in last {days_back} days")
+    if debug:
+        print("   🐛 DEBUG MODE ON")
     print(f"{'='*60}")
 
     zot     = zotero.Zotero(ZOTERO_USER_ID, 'user', ZOTERO_API_KEY)
@@ -280,10 +315,14 @@ def run_zotero_pipeline(days_back: int = 22):
         # auto-imported 태그 = RSS에서 이미 처리된 항목 → 스킵
         tags = [t['tag'] for t in data.get('tags', [])]
         if 'auto-imported' in tags:
+            if debug:
+                print(f"  [DEBUG] SKIP (auto-imported) | {data.get('title','')[:50]}")
             continue
 
         # blog-posted 태그 = 이미 블로그에 올린 항목 → 중복 방지
         if 'blog-posted' in tags:
+            if debug:
+                print(f"  [DEBUG] SKIP (blog-posted) | {data.get('title','')[:50]}")
             continue
 
         title    = data.get('title', '')
@@ -291,8 +330,16 @@ def run_zotero_pipeline(days_back: int = 22):
         link     = data.get('url', '')
         journal  = data.get('publicationTitle', 'Unknown Journal')
         date     = data.get('date', str(datetime.date.today()))[:10]
+        doi      = data.get('DOI', '')
 
-        ok, reason = passes_filter(title, abstract)
+        # abstract 없으면 DOI로 Crossref에서 자동 보완
+        if not abstract.strip() and doi:
+            print(f"  🔍 Abstract missing, fetching from Crossref (DOI: {doi})...")
+            abstract = fetch_abstract_from_doi(doi)
+            if abstract:
+                print(f"  ✅ Abstract fetched ({len(abstract)} chars)")
+
+        ok, reason = passes_filter(title, abstract, debug=debug)
         if not ok:
             print(f"  ⏭️  SKIP ({reason}) | {title[:50]}...")
             continue
