@@ -23,5 +23,5 @@ jobs:
         env:
           CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
           ZOTERO_API_KEY: ${{ secrets.ZOTERO_API_KEY }}
-          GITHUB_TOKEN:   ${{ secrets.GH_TOKEN }}
+          GH_TOKEN:   ${{ secrets.GH_TOKEN }}
         run: python lit_automation.py
