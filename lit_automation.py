@@ -62,7 +62,7 @@ def passes_filter(title, abstract):
         return False, "No quant method keyword"
     return True, f"Method: '{quant_match[0]}'"
 
-def fetch_papers(days_back=21):
+def fetch_papers(days_back=60):
     cutoff = datetime.datetime.now() - datetime.timedelta(days=days_back)
     passed = []
     for journal, url in RSS_FEEDS.items():
