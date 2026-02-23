@@ -37,6 +37,12 @@ QUANT_KEYWORDS = [
     "quasi-experimental", "natural experiment",
     "causal inference", "causal identification", "causal effect",
     "multilevel model", "hierarchical linear model", "ols regression",
+    "interrupted time series", "its analysis",
+    "segmented regression",
+    "triple difference", "difference-in-difference-in-differences",
+    "staggered adoption",
+    "callaway", "sant'anna",
+    "heterogeneous treatment",
 ]
 
 K12_KEYWORDS = [
