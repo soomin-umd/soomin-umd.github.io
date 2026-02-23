@@ -52,16 +52,35 @@ K12_KEYWORDS = [
     "early childhood", "p-12", "p12", "literacy",
 ]
 
+TITLE_KEYWORDS = [
+    "financial aid", "tuition", "selectivity", "equity",
+    "access", "enrollment", "college completion",
+    "first-generation", "intergenerational", "mobility",
+    "scholarship", "affordability", "student loan",
+    "transfer", "retention", "attainment",
+]
+
 def passes_filter(title, abstract):
     text = (title + " " + abstract).lower()
+    title_text = title.lower()
+
+    # K-12 reject
     for kw in K12_KEYWORDS:
         if kw in text:
             return False, f"K-12 detected: '{kw}'"
-    quant_match = [kw for kw in QUANT_KEYWORDS if kw in text]
-    if not quant_match:
-        return False, "No quant method keyword"
-    return True, f"Method: '{quant_match[0]}'"
 
+    # Quant method in abstract
+    quant_match = [kw for kw in QUANT_KEYWORDS if kw in text]
+
+    # Topic keyword in title (for when abstract is missing)
+    title_match = [kw for kw in TITLE_KEYWORDS if kw in title_text]
+
+    if not quant_match and not title_match:
+        return False, "No quant/topic keyword"
+
+    matched = (quant_match or title_match)[0]
+    return True, f"Match: '{matched}'"
+  
 def fetch_papers(days_back=60):
     cutoff = datetime.datetime.now() - datetime.timedelta(days=days_back)
     passed = []
