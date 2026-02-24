@@ -4,7 +4,10 @@ on:
   schedule:
     - cron: '0 9 1,22 * *' # 3주마다 월요일 오전 9시
   workflow_dispatch:       # 수동 실행도 가능
-
+  
+permissions:
+  contents: write     
+  
 jobs:
   run-lit-automation:
     runs-on: ubuntu-latest
@@ -23,5 +26,5 @@ jobs:
         env:
           CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
           ZOTERO_API_KEY: ${{ secrets.ZOTERO_API_KEY }}
-          GH_TOKEN:   ${{ secrets.GH_TOKEN }}
+          GH_TOKEN:   ${{ secrets.GITHUB_TOKEN }}
         run: python lit_automation.py
