@@ -11,7 +11,7 @@ import time
 CLAUDE_API_KEY = os.environ.get("CLAUDE_API_KEY")
 ZOTERO_API_KEY = os.environ.get("ZOTERO_API_KEY")
 ZOTERO_USER_ID = "19141751"
-GITHUB_TOKEN   = os.environ.get("GH_TOKEN")
+GITHUB_TOKEN = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
 GITHUB_REPO    = "soomin-umd/soomin-umd.github.io"
 
 # ── RSS Feeds ────────────────────────────────────────────────────────────────
