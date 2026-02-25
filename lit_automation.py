@@ -121,8 +121,18 @@ def passes_filter(title: str, abstract: str, debug: bool = False) -> tuple[bool,
 
 
 # ── Zotero save ───────────────────────────────────────────────────────────────
+def is_duplicate_in_zotero(zot, title: str) -> bool:
+    try:
+        results = zot.items(q=title[:50])
+        return len(results) > 0
+    except:
+        return False
+
 def save_to_zotero(paper: dict):
     zot  = zotero.Zotero(ZOTERO_USER_ID, 'user', ZOTERO_API_KEY)
+    if is_duplicate_in_zotero(zot, paper['title']):
+        print("  ⏭️  Already in Zotero, skipping")
+        return
     item = zot.item_template('journalArticle')
     item['title']            = paper['title']
     item['url']              = paper['link']
@@ -136,7 +146,6 @@ def save_to_zotero(paper: dict):
     ]
     zot.create_items([item])
     print("  📚 Saved to Zotero")
-
 
 # ── Claude summary ────────────────────────────────────────────────────────────
 def generate_summary(paper: dict) -> str:
