@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Race Below the Fold - The Absence of Race in the News Media’s Coverage of Student Loans"
-date: 2026-03-22
+date: 2026-03-22 00:25:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
