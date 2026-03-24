@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Dodging the Competency Trap? How Admissions and Financial Aid Offices Adapted to Test-Optional Policies After COVID-19"
-date: 2026-03-01
+date: 2026-03-01 00:10:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
