@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Negotiating Equity - A Critical Policy Analysis of Equity Sensemaking in District Partnership Initiatives"
-date: 2026-02-24
+date: 2026-02-24 00:17:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
