@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Are Friends of Schools the Enemies of Equity? The Interplay of School Funding Policies and External Fundraising"
-date: 2026-03-24
+date: 2026-03-24 00:04:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
