@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Mapping Matriculation - Queer and Trans Student Rights and College Enrollment Trends by State"
-date: 2026-03-01
+date: 2026-03-01 00:16:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
