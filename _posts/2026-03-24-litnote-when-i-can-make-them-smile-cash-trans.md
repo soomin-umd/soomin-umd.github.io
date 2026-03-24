@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] “When I Can Make Them Smile” - Cash Transfers and the Joys of Mothering in the Context of Poverty"
-date: 2026-03-24 00:44:00 +0000
+date: 2026-03-24 00:01:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
