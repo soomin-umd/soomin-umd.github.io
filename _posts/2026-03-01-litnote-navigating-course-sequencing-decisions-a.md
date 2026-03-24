@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Navigating Course-Sequencing Decisions and Community College Pathways for Historically Underserved Student Populations"
-date: 2026-03-01
+date: 2026-03-01 00:17:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
