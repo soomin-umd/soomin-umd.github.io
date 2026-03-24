@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Who are the “Scholars” in “Scholarship?” - How Higher Education Researchers Represent Positionality in Their Studies"
-date: 2026-02-24
+date: 2026-02-24 00:37:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
