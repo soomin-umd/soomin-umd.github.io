@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Complicating Education Geographies - Examining the Relationship Between Postsecondary Transfer Landscapes and Student Outcomes"
-date: 2026-02-24
+date: 2026-02-24 00:06:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
