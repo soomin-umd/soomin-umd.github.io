@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Applying the Family Fundamental Interpersonal Relations Orientation Model to the Study of First-Generation College Students"
-date: 2026-02-24
+date: 2026-02-24 00:03:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
