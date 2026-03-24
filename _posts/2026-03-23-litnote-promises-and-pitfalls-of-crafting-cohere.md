@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Promises and Pitfalls of Crafting Coherence Around a District-Wide Vision for Equity-Centered Instruction"
-date: 2026-03-23 00:02:00 +0000
+date: 2026-03-23 00:01:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
