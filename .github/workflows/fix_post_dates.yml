@@ -1,0 +1,35 @@
+name: Fix Post Dates (One-time)
+
+# 수동으로만 실행
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix-dates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install PyGithub
+
+      - name: Run date fix
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: python fix_post_dates.py
+
+      - name: Trigger blog rebuild
+        run: |
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/soomin-umd/soomin-umd.github.io/dispatches \
+            -d '{"event_type":"rebuild"}'
