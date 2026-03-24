@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] It Was a Good Day? Time Use and Subjective Well-Being Among Lower-Income College Students"
-date: 2026-03-24
+date: 2026-03-24 00:16:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
