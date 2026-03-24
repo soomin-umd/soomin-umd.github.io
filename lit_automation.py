@@ -224,7 +224,7 @@ def post_to_github(repo, paper: dict, summary: str, source_label: str = "RSS"):
 
     content = f"""---
 title: "[LitNote] {safe_title}"
-date: {datetime.date.today()}
+date: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')} -0500
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: {source_label}
