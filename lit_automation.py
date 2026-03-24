@@ -197,7 +197,7 @@ def _get_github_repo():
 
 
 def _make_filename(paper: dict) -> str:
-    """논문 제목 → _posts/ 파일명 생성"""
+    """논문 제목 → _posts/ 파일명 생성 (논문 Published 날짜 사용)"""
     today = paper['date'][:10]
     slug = re.sub(r'[^a-z0-9\-]', '',
                   paper['title'][:40].lower().replace(' ', '-'))
@@ -224,7 +224,7 @@ def post_to_github(repo, paper: dict, summary: str, source_label: str = "RSS"):
 
     content = f"""---
 title: "[LitNote] {safe_title}"
-date: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')} -0500
+date: {paper['date'][:10]} {datetime.datetime.now().strftime('%H:%M:%S')} +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: {source_label}
