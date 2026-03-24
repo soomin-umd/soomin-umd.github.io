@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Educator Retention in Context - Understanding Patterns in Principal Turnover in Texas and Washington State During the COVID-19 Era"
-date: 2026-02-24
+date: 2026-02-24 00:10:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
