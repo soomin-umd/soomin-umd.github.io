@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] The Effects of Federal Work-Study on First-Year College Outcomes - A Regression Discontinuity Approach"
-date: 2026-03-24
+date: 2026-03-24 00:32:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
