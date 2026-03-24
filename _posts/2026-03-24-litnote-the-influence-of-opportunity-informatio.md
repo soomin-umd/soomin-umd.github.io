@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] The Influence of Opportunity, Information, and Time on Queer and Trans Student Postsecondary Enrollment"
-date: 2026-03-24
+date: 2026-03-24 00:35:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
