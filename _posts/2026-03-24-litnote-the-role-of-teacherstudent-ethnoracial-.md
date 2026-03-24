@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] The Role of Teacher–Student Ethnoracial Matching in Student Identification for Special Education Services"
-date: 2026-03-24
+date: 2026-03-24 00:36:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
