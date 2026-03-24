@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] The Impact of Dual Enrollment on College Application Choice and Admission Success"
-date: 2026-03-01
+date: 2026-03-01 00:27:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
