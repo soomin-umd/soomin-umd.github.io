@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Labor Market Returns to Community College Noncredit Occupational Education"
-date: 2026-03-01
+date: 2026-03-01 00:14:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
