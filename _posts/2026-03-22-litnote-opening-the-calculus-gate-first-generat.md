@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Opening the Calculus Gate - First-Generation Status as Potential Moderator of Associations Among Math Self-Beliefs, High School Math Preparation, and Performance on College Math Placement Exams"
-date: 2026-03-22
+date: 2026-03-22 00:24:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
