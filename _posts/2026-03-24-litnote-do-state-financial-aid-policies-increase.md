@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Do State Financial Aid Policies Increase College Enrollment and Completion for Adult Learners?"
-date: 2026-03-24
+date: 2026-03-24 00:11:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
