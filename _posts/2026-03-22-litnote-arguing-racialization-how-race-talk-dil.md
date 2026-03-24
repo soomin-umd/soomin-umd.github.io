@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Arguing Racialization - How Race Talk Dilemmas Mediate Disciplinary Learning and Student Socialization in Doctoral Coursework"
-date: 2026-03-22
+date: 2026-03-22 00:05:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
