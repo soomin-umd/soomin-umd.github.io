@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Admissions Officers as Street-Level Bureaucrats - Exercising Discretion to Enact Competing Conceptions of Equity"
-date: 2026-03-22
+date: 2026-03-22 00:01:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
