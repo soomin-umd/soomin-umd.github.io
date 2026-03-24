@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Weighting for Equity: The Impact and Challenges of Weighted Student Funding Implementation"
-date: 2026-02-22
+date: 2026-02-22 00:02:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 ---
