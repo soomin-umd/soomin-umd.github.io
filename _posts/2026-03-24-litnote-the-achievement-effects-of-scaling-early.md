@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] The Achievement Effects of Scaling Early Literacy Reforms"
-date: 2026-03-24
+date: 2026-03-24 00:31:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
