@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] *Leaving to Fit In? The Ethnoracial Composition of Principals, Peer Teachers, and Teacher Turnover in New York City"
-date: 2026-03-24
+date: 2026-03-24 00:18:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
