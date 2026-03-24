@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Obstructing Transformative Change - Whiteness and Organizational Constraints on Graduate Leaders’ Attempts to Implement Equity Initiatives"
-date: 2026-03-01
+date: 2026-03-01 00:20:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
