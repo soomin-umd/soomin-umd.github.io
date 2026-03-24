@@ -15,7 +15,6 @@ GITHUB_TOKEN    = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
 GITHUB_REPO     = "soomin-umd/soomin-umd.github.io"
 
 # ── RSS Feeds ────────────────────────────────────────────────────────────────
-# results=100 → Springer 기본 25개 한계 우회, 최근 100개까지 수집
 RSS_FEEDS = {
     "Research in Higher Education":
         "https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=11162&results=100",
@@ -30,7 +29,7 @@ RSS_FEEDS = {
 # ── Keywords ─────────────────────────────────────────────────────────────────
 QUANT_KEYWORDS = [
     "difference-in-differences", "difference in differences",
-    r"\bdid\b",                   # ← 단어 경계로 오탐 방지
+    r"\bdid\b",
     "d-i-d", "regression discontinuity", "rdd", "rd design",
     "instrumental variable", "two-stage least squares", "2sls",
     "propensity score", "psm", "matching estimat",
@@ -38,7 +37,7 @@ QUANT_KEYWORDS = [
     "synthetic control", "event study",
     "quasi-experimental", "natural experiment",
     "causal inference", "causal identification",
-    r"causal effect",             # "causal effects" 복수도 매칭
+    r"causal effect",
     "multilevel model", "hierarchical linear model", "ols regression",
     "logistic regression", "logit model", "probit model",
     "interrupted time series", "its analysis", "segmented regression",
@@ -69,49 +68,78 @@ TITLE_KEYWORDS = [
 ]
 
 
-def fetch_abstract_from_doi(doi: str) -> str:
-    """DOI로 Crossref API에서 abstract 가져오기 (Zotero에 abstract 없을 때 fallback)"""
-    if not doi:
+# ── DOI / Crossref helpers ───────────────────────────────────────────────────
+def extract_doi_from_url(url):
+    if not url:
         return ''
+    m = re.search(r'(10\.\d{4,}/[^\s?#]+)', url)
+    if m:
+        return m.group(1)
+    return ''
+
+
+def fetch_crossref_data(doi):
+    if not doi:
+        return '', ''
     try:
         import urllib.request, json
         url = f"https://api.crossref.org/works/{doi}"
         req = urllib.request.Request(url, headers={'User-Agent': 'LitBot/1.0'})
         with urllib.request.urlopen(req, timeout=10) as resp:
             data = json.loads(resp.read())
-            abstract = data.get('message', {}).get('abstract', '')
-            # <jats:p> 태그 제거
+            msg = data.get('message', {})
+
+            abstract = msg.get('abstract', '')
             abstract = re.sub(r'<[^>]+>', '', abstract).strip()
-            return abstract
+
+            real_date = ''
+            for date_field in ['published-online', 'published-print', 'issued']:
+                date_obj = msg.get(date_field, {})
+                parts = date_obj.get('date-parts', [[]])[0]
+                if parts and len(parts) >= 3:
+                    real_date = f"{parts[0]}-{parts[1]:02d}-{parts[2]:02d}"
+                    break
+                elif parts and len(parts) == 2:
+                    real_date = f"{parts[0]}-{parts[1]:02d}-01"
+                    break
+                elif parts and len(parts) == 1:
+                    real_date = f"{parts[0]}-01-01"
+                    break
+
+            return abstract, real_date
     except Exception as e:
-        print(f"  ⚠️ Crossref fetch failed: {e}")
-        return ''
+        print(f"  Crossref fetch failed: {e}")
+        return '', ''
+
+
+def fetch_abstract_from_doi(doi):
+    abstract, _ = fetch_crossref_data(doi)
+    return abstract
+
+
+def fetch_real_date_from_doi(doi):
+    _, real_date = fetch_crossref_data(doi)
+    return real_date
 
 
 # ── Filter ───────────────────────────────────────────────────────────────────
-def passes_filter(title: str, abstract: str, debug: bool = False) -> tuple[bool, str]:
+def passes_filter(title, abstract, debug=False):
     text = (title + " " + abstract).lower()
     title_text = title.lower()
 
-    # K-12 reject
     for kw in K12_KEYWORDS:
         if kw in text:
             return False, f"K-12 detected: '{kw}'"
 
-    # Quant method match (정규식 지원)
     quant_match = next(
         (kw for kw in QUANT_KEYWORDS if re.search(kw, text)), None
     )
-
-    # Topic keyword in title
     title_match = next(
         (kw for kw in TITLE_KEYWORDS if kw in title_text), None
     )
 
     if debug:
         print(f"    [DEBUG] quant_match={quant_match} | title_match={title_match}")
-        print(f"    [DEBUG] title='{title_text[:80]}'")
-        print(f"    [DEBUG] abstract_len={len(abstract)}")
 
     if not quant_match and not title_match:
         return False, "No quant/topic keyword"
@@ -121,7 +149,7 @@ def passes_filter(title: str, abstract: str, debug: bool = False) -> tuple[bool,
 
 
 # ── Zotero save ───────────────────────────────────────────────────────────────
-def is_duplicate_in_zotero(zot, title: str) -> bool:
+def is_duplicate_in_zotero(zot, title):
     try:
         results = zot.items(q=title[:50])
         return len(results) > 0
@@ -129,11 +157,11 @@ def is_duplicate_in_zotero(zot, title: str) -> bool:
         return False
 
 
-def save_to_zotero(paper: dict):
+def save_to_zotero(paper):
     zot = zotero.Zotero(ZOTERO_USER_ID, 'user', ZOTERO_API_KEY)
 
     if is_duplicate_in_zotero(zot, paper['title']):
-        print("  ⏭️  Already in Zotero, skipping")
+        print("  Already in Zotero, skipping")
         return
 
     item = zot.item_template('journalArticle')
@@ -148,11 +176,11 @@ def save_to_zotero(paper: dict):
         {'tag': 'higher-ed'},
     ]
     zot.create_items([item])
-    print("  📚 Saved to Zotero")
+    print("  Saved to Zotero")
 
 
 # ── Claude summary ────────────────────────────────────────────────────────────
-def generate_summary(paper: dict) -> str:
+def generate_summary(paper):
     client = anthropic.Anthropic(api_key=CLAUDE_API_KEY)
 
     prompt = f"""Analyze the following higher education paper.
@@ -190,22 +218,19 @@ Please write in English using the format below:
 
 # ── GitHub helpers ────────────────────────────────────────────────────────────
 def _get_github_repo():
-    """PyGithub repo 객체 반환 (deprecated 경고 제거)"""
     auth = Auth.Token(GITHUB_TOKEN)
     g = Github(auth=auth)
     return g.get_repo(GITHUB_REPO)
 
 
-def _make_filename(paper: dict) -> str:
-    """논문 제목 → _posts/ 파일명 생성 (논문 Published 날짜 사용)"""
-    today = paper['date'][:10]
+def _make_filename(paper):
+    date_str = paper['date'][:10]
     slug = re.sub(r'[^a-z0-9\-]', '',
                   paper['title'][:40].lower().replace(' ', '-'))
-    return f"_posts/{today}-litnote-{slug}.md"
+    return f"_posts/{date_str}-litnote-{slug}.md"
 
 
-def post_exists_on_github(repo, filename: str) -> bool:
-    """GitHub repo에 해당 파일이 이미 있는지 확인 (Claude 호출 전에 체크)"""
+def post_exists_on_github(repo, filename):
     try:
         repo.get_contents(filename)
         return True
@@ -213,18 +238,19 @@ def post_exists_on_github(repo, filename: str) -> bool:
         return False
 
 
-def sanitize_title(title: str) -> str:
-    """YAML front matter에서 따옴표 충돌 방지"""
+def sanitize_title(title):
     return title.replace('"', "'").replace(':', ' -')
 
 
-def post_to_github(repo, paper: dict, summary: str, source_label: str = "RSS"):
+def post_to_github(repo, paper, summary, source_label="RSS"):
     filename = _make_filename(paper)
     safe_title = sanitize_title(paper['title'])
+    date_str = paper['date'][:10]
+    time_str = datetime.datetime.now().strftime('%H:%M:%S')
 
     content = f"""---
 title: "[LitNote] {safe_title}"
-date: {paper['date'][:10]} {datetime.datetime.now().strftime('%H:%M:%S')} +0000
+date: {date_str} {time_str} +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: {source_label}
@@ -249,20 +275,20 @@ source: {source_label}
             message=f"Auto LitNote: {paper['title'][:50]}",
             content=content,
         )
-        print(f"  📝 Posted to blog: {filename}")
+        print(f"  Posted to blog: {filename}")
     except Exception as e:
         err_msg = str(e).lower()
         if "already exists" in err_msg or "sha" in err_msg:
-            print(f"  ⏭️  Already posted, skipping: {filename}")
+            print(f"  Already posted, skipping: {filename}")
         else:
-            print(f"  ⚠️ GitHub error: {e}")
+            print(f"  GitHub error: {e}")
 
 
-# ── Pipeline 1: RSS Feed (22일 주기) ──────────────────────────────────────────
-def run_rss_pipeline(days_back: int = 22):
+# ── Pipeline 1: RSS Feed ─────────────────────────────────────────────────────
+def run_rss_pipeline(days_back=22):
     print(f"\n{'='*60}")
-    print("📡 [Pipeline 1] RSS Feed Scan")
-    print(f"   Scanning last {days_back} days")
+    print("RSS Feed Scan")
+    print(f"Scanning last {days_back} days")
     print(f"{'='*60}")
 
     cutoff = datetime.datetime.now() - datetime.timedelta(days=days_back)
@@ -273,7 +299,7 @@ def run_rss_pipeline(days_back: int = 22):
         try:
             feed = feedparser.parse(url)
         except Exception as e:
-            print(f"  ⚠️ RSS error: {e}")
+            print(f"  RSS error: {e}")
             continue
 
         for entry in feed.entries:
@@ -291,60 +317,64 @@ def run_rss_pipeline(days_back: int = 22):
 
             ok, reason = passes_filter(title, abstract)
             if ok:
+                doi = extract_doi_from_url(link)
+                rss_date = pub_date.strftime('%Y-%m-%d')
+                real_date = ''
+                if doi:
+                    print(f"    DOI: {doi} - fetching real date...")
+                    real_date = fetch_real_date_from_doi(doi)
+                    if real_date:
+                        print(f"    Real date: {real_date} (RSS: {rss_date})")
+
+                use_date = real_date if real_date else rss_date
+
                 passed.append({
                     'title': title, 'abstract': abstract,
                     'link': link, 'journal': journal,
-                    'date': pub_date.strftime('%Y-%m-%d'),
+                    'date': use_date,
                 })
-                print(f"  ✅ PASS | {reason} | {title[:60]}...")
+                print(f"  PASS | {reason} | {title[:60]}...")
             else:
-                print(f"  ⏭️  SKIP ({reason})")
+                print(f"  SKIP ({reason})")
 
-    print(f"\n  → {len(passed)} papers passed filters")
+    print(f"\n  {len(passed)} papers passed filters")
 
-    # ── GitHub repo 객체를 한 번만 생성 ──
     repo = _get_github_repo()
     posted_count = 0
 
     for i, paper in enumerate(passed, 1):
         print(f"\n[{i}/{len(passed)}] {paper['title'][:65]}...")
 
-        # ── (1) Zotero 저장 ──
         try:
             save_to_zotero(paper)
         except Exception as e:
-            print(f"  ⚠️ Zotero error: {e}")
+            print(f"  Zotero error: {e}")
 
-        # ── (2) 블로그 중복 체크 (Claude 호출 전!) ──
         filename = _make_filename(paper)
         if post_exists_on_github(repo, filename):
-            print(f"  ⏭️  Already on blog, skipping Claude call: {filename}")
+            print(f"  Already on blog, skipping: {filename}")
             continue
 
-        # ── (3) Claude 요약 생성 ──
-        print("  🤖 Generating summary...")
+        print("  Generating summary...")
         try:
             summary = generate_summary(paper)
         except Exception as e:
-            print(f"  ⚠️ Claude error: {e}")
+            print(f"  Claude error: {e}")
             continue
 
-        # ── (4) GitHub 포스트 ──
         post_to_github(repo, paper, summary, source_label="RSS")
         posted_count += 1
         time.sleep(2)
 
-    print(f"\n✅ RSS Pipeline done: {posted_count} new posts out of {len(passed)} papers.")
+    print(f"\nRSS done: {posted_count} new posts out of {len(passed)} papers.")
     return posted_count
 
 
-# ── Pipeline 2: Zotero Queue (수동 추가분) ────────────────────────────────────
-def run_zotero_pipeline(days_back: int = 22, debug: bool = False):
+# ── Pipeline 2: Zotero Queue ─────────────────────────────────────────────────
+def run_zotero_pipeline(days_back=22, debug=False):
     print(f"\n{'='*60}")
-    print("📚 [Pipeline 2] Zotero Queue Scan")
-    print(f"   Checking items added in last {days_back} days")
-    if debug:
-        print("   🐛 DEBUG MODE ON")
+    print("Zotero Queue Scan")
+    print(f"Checking items added in last {days_back} days")
     print(f"{'='*60}")
 
     zot   = zotero.Zotero(ZOTERO_USER_ID, 'user', ZOTERO_API_KEY)
@@ -352,31 +382,22 @@ def run_zotero_pipeline(days_back: int = 22, debug: bool = False):
 
     cutoff = datetime.datetime.now() - datetime.timedelta(days=days_back)
 
-    # ── GitHub repo 객체를 한 번만 생성 ──
     repo = _get_github_repo()
     processed = 0
 
     for item in items:
         data = item.get('data', {})
 
-        # 기간 체크
         date_added = data.get('dateAdded', '')
         if date_added:
             added_dt = datetime.datetime.strptime(date_added[:19], '%Y-%m-%dT%H:%M:%S')
             if added_dt < cutoff:
                 continue
 
-        # auto-imported 태그 = RSS에서 이미 처리된 항목 → 스킵
         tags = [t['tag'] for t in data.get('tags', [])]
         if 'auto-imported' in tags:
-            if debug:
-                print(f"  [DEBUG] SKIP (auto-imported) | {data.get('title','')[:50]}")
             continue
-
-        # blog-posted 태그 = 이미 블로그에 올린 항목 → 중복 방지
         if 'blog-posted' in tags:
-            if debug:
-                print(f"  [DEBUG] SKIP (blog-posted) | {data.get('title','')[:50]}")
             continue
 
         title    = data.get('title', '')
@@ -386,41 +407,42 @@ def run_zotero_pipeline(days_back: int = 22, debug: bool = False):
         date     = data.get('date', str(datetime.date.today()))[:10]
         doi      = data.get('DOI', '')
 
-        # abstract 없으면 DOI로 Crossref에서 자동 보완
         if not abstract.strip() and doi:
-            print(f"  🔍 Abstract missing, fetching from Crossref (DOI: {doi})...")
+            print(f"  Abstract missing, fetching from Crossref...")
             abstract = fetch_abstract_from_doi(doi)
-            if abstract:
-                print(f"  ✅ Abstract fetched ({len(abstract)} chars)")
+
+        if doi:
+            real_date = fetch_real_date_from_doi(doi)
+            if real_date:
+                print(f"  Real date: {real_date} (Zotero: {date})")
+                date = real_date
 
         ok, reason = passes_filter(title, abstract, debug=debug)
         if not ok:
-            print(f"  ⏭️  SKIP ({reason}) | {title[:50]}...")
+            print(f"  SKIP ({reason}) | {title[:50]}...")
             continue
 
-        print(f"\n  ✅ MATCH | {reason} | {title[:60]}...")
+        print(f"\n  MATCH | {reason} | {title[:60]}...")
 
         paper = {
             'title': title, 'abstract': abstract,
             'link': link, 'journal': journal, 'date': date,
         }
 
-        # ── 블로그 중복 체크 (Claude 호출 전!) ──
         filename = _make_filename(paper)
         if post_exists_on_github(repo, filename):
-            print(f"  ⏭️  Already on blog, skipping Claude call: {filename}")
+            print(f"  Already on blog, skipping: {filename}")
             continue
 
-        print("  🤖 Generating summary...")
+        print("  Generating summary...")
         try:
             summary = generate_summary(paper)
         except Exception as e:
-            print(f"  ⚠️ Claude error: {e}")
+            print(f"  Claude error: {e}")
             continue
 
         post_to_github(repo, paper, summary, source_label="Zotero")
 
-        # 처리 완료 표시 → 다음 실행 때 중복 방지
         try:
             zot.update_item({
                 **item,
@@ -429,30 +451,30 @@ def run_zotero_pipeline(days_back: int = 22, debug: bool = False):
                     'tags': data.get('tags', []) + [{'tag': 'blog-posted'}],
                 }
             })
-            print("  🏷️  Tagged 'blog-posted' in Zotero")
+            print("  Tagged 'blog-posted' in Zotero")
         except Exception as e:
-            print(f"  ⚠️ Tag update error: {e}")
+            print(f"  Tag update error: {e}")
 
         processed += 1
         time.sleep(2)
 
-    print(f"\n✅ Zotero Pipeline done: {processed} papers processed.")
+    print(f"\nZotero done: {processed} papers processed.")
     return processed
 
 
-# ── Main: 두 파이프라인 통합 실행 ─────────────────────────────────────────────
-def run_all(days_back: int = 22):
-    print("\n🚀 Starting Literature Automation Pipeline")
-    print(f"   Scan window: {days_back} days\n")
+# ── Main ──────────────────────────────────────────────────────────────────────
+def run_all(days_back=22):
+    print("\nStarting Literature Automation Pipeline")
+    print(f"Scan window: {days_back} days\n")
 
     rss_count    = run_rss_pipeline(days_back=days_back)
     zotero_count = run_zotero_pipeline(days_back=days_back)
 
     print(f"\n{'='*60}")
-    print("🎉 All Done!")
-    print(f"   RSS papers posted   : {rss_count}")
-    print(f"   Zotero papers posted: {zotero_count}")
-    print(f"   Blog: https://soomin-umd.github.io")
+    print("All Done!")
+    print(f"RSS papers posted   : {rss_count}")
+    print(f"Zotero papers posted: {zotero_count}")
+    print(f"Blog: https://soomin-umd.github.io")
     print(f"{'='*60}\n")
 
 
