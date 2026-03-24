@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Racial Representation of School Principals - Possibilities and Limitations of Racial Parity With Students, Teachers, and the Workforce"
-date: 2026-03-24
+date: 2026-03-24 00:28:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
