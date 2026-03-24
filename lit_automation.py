@@ -198,7 +198,7 @@ def _get_github_repo():
 
 def _make_filename(paper: dict) -> str:
     """논문 제목 → _posts/ 파일명 생성"""
-    today = datetime.date.today()
+    today = paper['date'][:10]
     slug = re.sub(r'[^a-z0-9\-]', '',
                   paper['title'][:40].lower().replace(' ', '-'))
     return f"_posts/{today}-litnote-{slug}.md"
