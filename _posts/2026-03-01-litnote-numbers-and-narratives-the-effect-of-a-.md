@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Numbers and Narratives - The Effect of a Combined Information and Role Model Intervention in Reducing Inequalities in Access to Higher Education in Denmark"
-date: 2026-03-01
+date: 2026-03-01 00:19:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
