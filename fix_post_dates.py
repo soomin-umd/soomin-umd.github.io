@@ -75,4 +75,4 @@ def main():
             'file': p,
             'name': p.name,
             'content': raw,
-            'published_date': pub_date or '2026-
+            'published_date': pub_date or '2026-01-01',
