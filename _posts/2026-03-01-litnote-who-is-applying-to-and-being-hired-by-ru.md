@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Who Is Applying to and Being Hired by Rural Schools? What Vacancy and Application Data Reveal About the Rural Teacher Labor Market"
-date: 2026-03-01
+date: 2026-03-01 00:39:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
