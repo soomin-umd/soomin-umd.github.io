@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Whose Last Dollar? Estimating the Effects of Promise Programs on Financial Aid Awards"
-date: 2026-03-01
+date: 2026-03-01 00:40:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
