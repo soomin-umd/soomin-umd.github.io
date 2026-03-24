@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Analyzing the Purposes and Mechanisms of Faculty Cluster Hiring Initiatives to Promote Racial Equity"
-date: 2026-03-22
+date: 2026-03-22 00:02:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
