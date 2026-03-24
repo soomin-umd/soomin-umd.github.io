@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Effects of Juvenile Arrest on Immediate College Enrollment - The Role of Race/Ethnicity and Parental Education"
-date: 2026-03-22
+date: 2026-03-22 00:14:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
