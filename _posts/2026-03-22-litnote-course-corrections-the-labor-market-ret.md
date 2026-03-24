@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Course Corrections? The Labor Market Returns to Correctional Education Credentials"
-date: 2026-03-22
+date: 2026-03-22 00:08:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
