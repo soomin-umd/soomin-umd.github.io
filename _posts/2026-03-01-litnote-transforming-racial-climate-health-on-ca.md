@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Transforming Racial Climate Health on Campus - The Need for Structural Competency in a Legal Context of “Race-Neutrality”"
-date: 2026-03-01
+date: 2026-03-01 00:32:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
