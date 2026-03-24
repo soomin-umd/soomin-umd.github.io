@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] “The Selectivity Divide - A Longitudinal Study of Religious Pluralism in United States Higher Education”"
-date: 2026-03-01
+date: 2026-03-01 00:30:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
