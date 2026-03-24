@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Well-Written - The Socialization and Transfer of Academic Writing"
-date: 2026-03-24
+date: 2026-03-24 00:41:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
