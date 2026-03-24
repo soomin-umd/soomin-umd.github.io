@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] “We’re on Our Own Out Here” - Faculty Member Responses to Legislative Threats to Academic Freedom and Scholarship on Race"
-date: 2026-03-24
+date: 2026-03-24 00:42:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
