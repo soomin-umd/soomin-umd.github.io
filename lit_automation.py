@@ -2,17 +2,17 @@ import os
 import feedparser
 import anthropic
 from pyzotero import zotero
-from github import Github
+from github import Github, Auth
 import datetime
 import re
 import time
 
 # ── API Keys (GitHub Secrets) ────────────────────────────────────────────────
-CLAUDE_API_KEY = os.environ.get("CLAUDE_API_KEY")
-ZOTERO_API_KEY = os.environ.get("ZOTERO_API_KEY")
-ZOTERO_USER_ID = "19141751"
-GITHUB_TOKEN = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
-GITHUB_REPO    = "soomin-umd/soomin-umd.github.io"
+CLAUDE_API_KEY  = os.environ.get("CLAUDE_API_KEY")
+ZOTERO_API_KEY  = os.environ.get("ZOTERO_API_KEY")
+ZOTERO_USER_ID  = "19141751"
+GITHUB_TOKEN    = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
+GITHUB_REPO     = "soomin-umd/soomin-umd.github.io"
 
 # ── RSS Feeds ────────────────────────────────────────────────────────────────
 # results=100 → Springer 기본 25개 한계 우회, 최근 100개까지 수집
@@ -30,7 +30,7 @@ RSS_FEEDS = {
 # ── Keywords ─────────────────────────────────────────────────────────────────
 QUANT_KEYWORDS = [
     "difference-in-differences", "difference in differences",
-    r"\bdid\b",                                  # ← 단어 경계로 오탐 방지
+    r"\bdid\b",                   # ← 단어 경계로 오탐 방지
     "d-i-d", "regression discontinuity", "rdd", "rd design",
     "instrumental variable", "two-stage least squares", "2sls",
     "propensity score", "psm", "matching estimat",
@@ -38,7 +38,7 @@ QUANT_KEYWORDS = [
     "synthetic control", "event study",
     "quasi-experimental", "natural experiment",
     "causal inference", "causal identification",
-    r"causal effect",        # "causal effects" 복수도 매칭
+    r"causal effect",             # "causal effects" 복수도 매칭
     "multilevel model", "hierarchical linear model", "ols regression",
     "logistic regression", "logit model", "probit model",
     "interrupted time series", "its analysis", "segmented regression",
@@ -54,7 +54,6 @@ K12_KEYWORDS = [
     "primary school", "secondary school", "kindergarten",
     "grade school", "school district", "preschool", "pre-k",
     "early childhood", "p-12", "p12",
-    # "literacy" 제거 → higher ed에서도 자주 쓰임 (financial literacy 등)
 ]
 
 TITLE_KEYWORDS = [
@@ -68,6 +67,7 @@ TITLE_KEYWORDS = [
     "lower-income", "low-income", "pell",
     "underrepresented", "minority", "racial",
 ]
+
 
 def fetch_abstract_from_doi(doi: str) -> str:
     """DOI로 Crossref API에서 abstract 가져오기 (Zotero에 abstract 없을 때 fallback)"""
@@ -90,7 +90,7 @@ def fetch_abstract_from_doi(doi: str) -> str:
 
 # ── Filter ───────────────────────────────────────────────────────────────────
 def passes_filter(title: str, abstract: str, debug: bool = False) -> tuple[bool, str]:
-    text       = (title + " " + abstract).lower()
+    text = (title + " " + abstract).lower()
     title_text = title.lower()
 
     # K-12 reject
@@ -128,18 +128,21 @@ def is_duplicate_in_zotero(zot, title: str) -> bool:
     except:
         return False
 
+
 def save_to_zotero(paper: dict):
-    zot  = zotero.Zotero(ZOTERO_USER_ID, 'user', ZOTERO_API_KEY)
+    zot = zotero.Zotero(ZOTERO_USER_ID, 'user', ZOTERO_API_KEY)
+
     if is_duplicate_in_zotero(zot, paper['title']):
         print("  ⏭️  Already in Zotero, skipping")
         return
+
     item = zot.item_template('journalArticle')
-    item['title']            = paper['title']
-    item['url']              = paper['link']
-    item['publicationTitle'] = paper['journal']
-    item['date']             = paper['date']
-    item['abstractNote']     = paper['abstract']
-    item['tags']             = [
+    item['title']             = paper['title']
+    item['url']               = paper['link']
+    item['publicationTitle']  = paper['journal']
+    item['date']              = paper['date']
+    item['abstractNote']      = paper['abstract']
+    item['tags'] = [
         {'tag': 'auto-imported'},
         {'tag': 'quant-methods'},
         {'tag': 'higher-ed'},
@@ -147,9 +150,11 @@ def save_to_zotero(paper: dict):
     zot.create_items([item])
     print("  📚 Saved to Zotero")
 
+
 # ── Claude summary ────────────────────────────────────────────────────────────
 def generate_summary(paper: dict) -> str:
     client = anthropic.Anthropic(api_key=CLAUDE_API_KEY)
+
     prompt = f"""Analyze the following higher education paper.
 I am a PhD student researching intergenerational educational mobility,
 first-generation college students (FGCS), and state financial aid policy.
@@ -174,33 +179,52 @@ Please write in English using the format below:
 
 ## ⭐ Key Quote Worth Citing (verbatim from abstract)
 """
+
     response = client.messages.create(
-        model="claude-opus-4-6",
+        model="claude-sonnet-4-20250514",
         max_tokens=1200,
         messages=[{"role": "user", "content": prompt}],
     )
     return response.content[0].text
 
 
-# ── GitHub post ───────────────────────────────────────────────────────────────
+# ── GitHub helpers ────────────────────────────────────────────────────────────
+def _get_github_repo():
+    """PyGithub repo 객체 반환 (deprecated 경고 제거)"""
+    auth = Auth.Token(GITHUB_TOKEN)
+    g = Github(auth=auth)
+    return g.get_repo(GITHUB_REPO)
+
+
+def _make_filename(paper: dict) -> str:
+    """논문 제목 → _posts/ 파일명 생성"""
+    today = datetime.date.today()
+    slug = re.sub(r'[^a-z0-9\-]', '',
+                  paper['title'][:40].lower().replace(' ', '-'))
+    return f"_posts/{today}-litnote-{slug}.md"
+
+
+def post_exists_on_github(repo, filename: str) -> bool:
+    """GitHub repo에 해당 파일이 이미 있는지 확인 (Claude 호출 전에 체크)"""
+    try:
+        repo.get_contents(filename)
+        return True
+    except Exception:
+        return False
+
+
 def sanitize_title(title: str) -> str:
     """YAML front matter에서 따옴표 충돌 방지"""
     return title.replace('"', "'").replace(':', ' -')
 
 
-def post_to_github(paper: dict, summary: str, source_label: str = "RSS"):
-    g     = Github(GITHUB_TOKEN)
-    repo  = g.get_repo(GITHUB_REPO)
-    today = datetime.date.today()
-    slug  = re.sub(r'[^a-z0-9\-]', '',
-                   paper['title'][:40].lower().replace(' ', '-'))
-    filename = f"_posts/{today}-litnote-{slug}.md"
-
+def post_to_github(repo, paper: dict, summary: str, source_label: str = "RSS"):
+    filename = _make_filename(paper)
     safe_title = sanitize_title(paper['title'])
 
     content = f"""---
 title: "[LitNote] {safe_title}"
-date: {today}
+date: {datetime.date.today()}
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: {source_label}
@@ -215,8 +239,10 @@ source: {source_label}
 {summary}
 
 ---
+
 *🤖 Auto-generated using Claude API | Source: {source_label}*
 """
+
     try:
         repo.create_file(
             path=filename,
@@ -225,8 +251,9 @@ source: {source_label}
         )
         print(f"  📝 Posted to blog: {filename}")
     except Exception as e:
-        if "already exists" in str(e):
-            print("  ⏭️  Already posted, skipping")
+        err_msg = str(e).lower()
+        if "already exists" in err_msg or "sha" in err_msg:
+            print(f"  ⏭️  Already posted, skipping: {filename}")
         else:
             print(f"  ⚠️ GitHub error: {e}")
 
@@ -275,13 +302,26 @@ def run_rss_pipeline(days_back: int = 22):
 
     print(f"\n  → {len(passed)} papers passed filters")
 
+    # ── GitHub repo 객체를 한 번만 생성 ──
+    repo = _get_github_repo()
+    posted_count = 0
+
     for i, paper in enumerate(passed, 1):
         print(f"\n[{i}/{len(passed)}] {paper['title'][:65]}...")
+
+        # ── (1) Zotero 저장 ──
         try:
             save_to_zotero(paper)
         except Exception as e:
             print(f"  ⚠️ Zotero error: {e}")
 
+        # ── (2) 블로그 중복 체크 (Claude 호출 전!) ──
+        filename = _make_filename(paper)
+        if post_exists_on_github(repo, filename):
+            print(f"  ⏭️  Already on blog, skipping Claude call: {filename}")
+            continue
+
+        # ── (3) Claude 요약 생성 ──
         print("  🤖 Generating summary...")
         try:
             summary = generate_summary(paper)
@@ -289,11 +329,13 @@ def run_rss_pipeline(days_back: int = 22):
             print(f"  ⚠️ Claude error: {e}")
             continue
 
-        post_to_github(paper, summary, source_label="RSS")
+        # ── (4) GitHub 포스트 ──
+        post_to_github(repo, paper, summary, source_label="RSS")
+        posted_count += 1
         time.sleep(2)
 
-    print(f"\n✅ RSS Pipeline done: {len(passed)} papers processed.")
-    return len(passed)
+    print(f"\n✅ RSS Pipeline done: {posted_count} new posts out of {len(passed)} papers.")
+    return posted_count
 
 
 # ── Pipeline 2: Zotero Queue (수동 추가분) ────────────────────────────────────
@@ -305,9 +347,13 @@ def run_zotero_pipeline(days_back: int = 22, debug: bool = False):
         print("   🐛 DEBUG MODE ON")
     print(f"{'='*60}")
 
-    zot     = zotero.Zotero(ZOTERO_USER_ID, 'user', ZOTERO_API_KEY)
-    items   = zot.items(sort='dateAdded', direction='desc', limit=50)
-    cutoff  = datetime.datetime.now() - datetime.timedelta(days=days_back)
+    zot   = zotero.Zotero(ZOTERO_USER_ID, 'user', ZOTERO_API_KEY)
+    items = zot.items(sort='dateAdded', direction='desc', limit=50)
+
+    cutoff = datetime.datetime.now() - datetime.timedelta(days=days_back)
+
+    # ── GitHub repo 객체를 한 번만 생성 ──
+    repo = _get_github_repo()
     processed = 0
 
     for item in items:
@@ -359,6 +405,12 @@ def run_zotero_pipeline(days_back: int = 22, debug: bool = False):
             'link': link, 'journal': journal, 'date': date,
         }
 
+        # ── 블로그 중복 체크 (Claude 호출 전!) ──
+        filename = _make_filename(paper)
+        if post_exists_on_github(repo, filename):
+            print(f"  ⏭️  Already on blog, skipping Claude call: {filename}")
+            continue
+
         print("  🤖 Generating summary...")
         try:
             summary = generate_summary(paper)
@@ -366,7 +418,7 @@ def run_zotero_pipeline(days_back: int = 22, debug: bool = False):
             print(f"  ⚠️ Claude error: {e}")
             continue
 
-        post_to_github(paper, summary, source_label="Zotero")
+        post_to_github(repo, paper, summary, source_label="Zotero")
 
         # 처리 완료 표시 → 다음 실행 때 중복 방지
         try:
