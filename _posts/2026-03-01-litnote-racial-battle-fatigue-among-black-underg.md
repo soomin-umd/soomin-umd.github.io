@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Racial Battle Fatigue Among Black Undergraduates - Examining the Role of General, Academic, and Racial Campus Climates"
-date: 2026-03-01
+date: 2026-03-01 00:22:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
