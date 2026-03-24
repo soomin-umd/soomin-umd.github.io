@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Community College Transfer Admission and Articulation in a Selective STEM Major - How University Faculty, Staff, and Administrators Contribute to Hypercompetitive and Convoluted Transfer Processes"
-date: 2026-02-24
+date: 2026-02-24 00:05:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
