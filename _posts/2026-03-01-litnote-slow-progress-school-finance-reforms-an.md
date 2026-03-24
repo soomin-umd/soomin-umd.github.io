@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] Slow Progress - School Finance Reforms and Racial Disparities in Funding"
-date: 2026-03-01
+date: 2026-03-01 00:23:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
