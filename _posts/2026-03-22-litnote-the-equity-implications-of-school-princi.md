@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] The Equity Implications of School Principal Evaluation for Student Achievement - A Critical Quantitative Policy Analysis"
-date: 2026-03-22
+date: 2026-03-22 00:32:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
