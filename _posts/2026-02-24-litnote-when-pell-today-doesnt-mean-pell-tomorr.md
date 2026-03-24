@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] When Pell Today Doesn’t Mean Pell Tomorrow - The Challenge of Evaluating Aid Programs With Dynamic Eligibility"
-date: 2026-02-24
+date: 2026-02-24 00:36:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
