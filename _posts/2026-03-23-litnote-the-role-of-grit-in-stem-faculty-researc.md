@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] The Role of Grit in STEM Faculty Research Success - A US Longitudinal Study"
-date: 2026-03-23 00:01:00 +0000
+date: 2026-03-23 00:02:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
