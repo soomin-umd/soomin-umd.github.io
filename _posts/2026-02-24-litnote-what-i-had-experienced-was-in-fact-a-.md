@@ -1,6 +1,6 @@
 ---
 title: "[LitNote] “What I Had Experienced Was, in Fact, a Microaggression” - A Phenomenological Inquiry into International Students of Color Developing Critical Racial Consciousness"
-date: 2026-02-24
+date: 2026-02-24 00:35:00 +0000
 categories: [Literature Notes]
 tags: [quant-methods, higher-ed, auto-summary]
 source: RSS
